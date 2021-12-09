@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,12 +27,30 @@ namespace MSC15test
             }
 
             Console.WriteLine();
-            var spec = device.GetSpectrum();
+            var spec = device.GetVisSpectrum();
 
             for (int i = 0; i < spec.Length; i++)
             {
-                Console.WriteLine($"{i,4} {spec[i].Wavelength:F2} nm  ->  {1000*spec[i].Irradiance:F6}");
+                Console.WriteLine($"{i,4} {spec[i].Wavelength:F2} nm  ->  {spec[i].Irradiance:F6}");
             }
+
+            var streamWriter = new StreamWriter("MSC15vis.csv", false);
+            streamWriter.WriteLine("wavelength / nm , irradiance / W/(m²cm)");
+            for (int i = 0; i < spec.Length; i++)
+            {
+                streamWriter.WriteLine($"{spec[i].Wavelength} , {spec[i].Irradiance}");
+            }
+            streamWriter.Close();
+
+            streamWriter = new StreamWriter("MSC15native.csv", false);
+            streamWriter.WriteLine("wavelength / nm , irradiance / W/(m²cm)");
+            spec = device.GetNativeSpectrum();
+            for (int i = 0; i < spec.Length; i++)
+            {
+                streamWriter.WriteLine($"{spec[i].Wavelength:F2} , {spec[i].Irradiance}");
+            }
+            streamWriter.Close();
+
         }
     }
 }
