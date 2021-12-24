@@ -43,11 +43,13 @@ namespace MSC15test
             streamWriter.Close();
 
             streamWriter = new StreamWriter("MSC15native.csv", false);
-            streamWriter.WriteLine("wavelength / nm , irradiance / W/(m²cm)");
+            streamWriter.WriteLine("index , wavelength / nm , irradiance / W/(m²cm)");
+
             spec = device.GetNativeSpectrum();
+
             for (int i = 0; i < spec.Length; i++)
             {
-                streamWriter.WriteLine($"{spec[i].Wavelength:F2} , {spec[i].Irradiance}");
+                streamWriter.WriteLine($"{i,3} , {spec[i].Wavelength:F2} , {spec[i].Irradiance}");
             }
             streamWriter.Close();
 
