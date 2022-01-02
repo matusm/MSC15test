@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Bev.Instruments.Msc15;
 
 namespace MSC15test
@@ -20,36 +16,29 @@ namespace MSC15test
             Console.WriteLine($"ID: {device.InstrumentID}");
             //device.MeasureDark();
 
+            NativeSpectrum spectrum = new NativeSpectrum();
+
             for (int i = 0; i < 10; i++)
             {
                 device.Measure();
                 Console.WriteLine($"{i+1,4}:   {device.CctValue:F0} K    {device.PhotopicValue:F2} lx  {device.GetLastIntegrationTime():F4} s");
+                var singleSpec = device.GetNativeSpectrum();
+                spectrum.Update(singleSpec);
             }
 
             Console.WriteLine();
-            var spec = device.GetVisSpectrum();
 
-            for (int i = 0; i < spec.Length; i++)
+            StreamWriter streamWriter = new StreamWriter("MSC15nativeAverage.csv", false);
+            string csvHeader = $"index , wavelength , average irradiance , minimum, maximum, standard deviation";
+            streamWriter.WriteLine(csvHeader);
+            Console.WriteLine(csvHeader);
+
+            for (int i = 0; i < spectrum.Spectrum.Length; i++)
             {
-                Console.WriteLine($"{i,4} {spec[i].Wavelength:F2} nm  ->  {spec[i].Irradiance:F6}");
-            }
-
-            var streamWriter = new StreamWriter("MSC15vis.csv", false);
-            streamWriter.WriteLine("wavelength / nm , irradiance / W/(m²cm)");
-            for (int i = 0; i < spec.Length; i++)
-            {
-                streamWriter.WriteLine($"{spec[i].Wavelength} , {spec[i].Irradiance}");
-            }
-            streamWriter.Close();
-
-            streamWriter = new StreamWriter("MSC15native.csv", false);
-            streamWriter.WriteLine("index , wavelength / nm , irradiance / W/(m²cm)");
-
-            spec = device.GetNativeSpectrum();
-
-            for (int i = 0; i < spec.Length; i++)
-            {
-                streamWriter.WriteLine($"{i,3} , {spec[i].Wavelength:F2} , {spec[i].Irradiance}");
+                var point = spectrum.Spectrum[i];
+                string csvLine = $"{i,3} , {point.Wavelength:F2} , {point.AverageValue} , {point.MinimumValue} , {point.MaximumValue} , {point.StandardDeviation}";
+                streamWriter.WriteLine(csvLine);
+                Console.WriteLine(csvLine);
             }
             streamWriter.Close();
 
