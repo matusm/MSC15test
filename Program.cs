@@ -14,11 +14,13 @@ namespace MSC15test
             var device = new Msc15("MSC15_0");
 
             Console.WriteLine($"ID: {device.InstrumentID}");
-            //device.MeasureDark();
+            MeasureDarkOffset();
+            SetDynamicDarkMode();
+
 
             NativeSpectrum spectrum = new NativeSpectrum();
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 30; i++)
             {
                 device.Measure();
                 Console.WriteLine($"{i+1,4}:   {device.CctValue:F0} K    {device.PhotopicValue:F2} lx  {device.GetLastIntegrationTime():F4} s");
@@ -28,20 +30,57 @@ namespace MSC15test
 
             Console.WriteLine();
 
-            StreamWriter streamWriter = new StreamWriter("MSC15nativeAverage.csv", false);
-            string csvHeader = $"index , wavelength , average irradiance , minimum, maximum, standard deviation";
+            StreamWriter streamWriter = new StreamWriter("CSS45nativeAverage.csv", false);
+            string csvHeader = $"index , wavelength , average irradiance , minimum , maximum, standard deviation";
             streamWriter.WriteLine(csvHeader);
             Console.WriteLine(csvHeader);
 
             for (int i = 0; i < spectrum.Spectrum.Length; i++)
             {
                 var point = spectrum.Spectrum[i];
-                string csvLine = $"{i,3} , {point.Wavelength:F2} , {point.AverageValue} , {point.MinimumValue} , {point.MaximumValue} , {point.StandardDeviation}";
+                string csvLine = $"{i,3} , {point.Wavelength:F5} , {point.AverageValue:G5} , {point.MinimumValue:G5} , {point.MaximumValue:G5} , {point.StandardDeviation:G5}";
                 streamWriter.WriteLine(csvLine);
                 Console.WriteLine(csvLine);
             }
             streamWriter.Close();
 
+            /***************************************************/
+            void SetDynamicDarkMode()
+            {
+                if (device.HasShutter)
+                {
+                    device.ActivateDynamicDarkMode();
+                    Console.WriteLine("Dynamic dark mode activated.");
+                }
+                else
+                {
+                    device.DeactivateDynamicDarkMode();
+                    Console.WriteLine("Dynamic dark mode deactivated.");
+                }
+            }
+            /***************************************************/
+            void MeasureDarkOffset()
+            {
+                if (device.HasShutter)
+                {
+                    Console.WriteLine("measure dark offset ...");
+                    device.MeasureDark();
+                }
+                else
+                {
+                    // manual close shutter (only for MSC15)
+                    Console.WriteLine("close shutter and press enter");
+                    Console.ReadLine();
+                    device.MeasureDark();
+                    Console.WriteLine("open Shutter and press enter");
+                    Console.ReadLine();
+                }
+            }
+            /***************************************************/
+
+
         }
+
+
     }
 }
