@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
+using At.Matus.StatisticPod;
 using Bev.Instruments.Msc15;
 
 namespace MSC15test
@@ -11,38 +13,111 @@ namespace MSC15test
         {
             CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
 
-            var device = new Msc15("MSC15_0");
+            DateTime timeStamp = DateTime.UtcNow;
+            string appName = Assembly.GetExecutingAssembly().GetName().Name;
+            var appVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            string appVersionString = $"{appVersion.Major}.{appVersion.Minor}";
 
-            Console.WriteLine($"ID: {device.InstrumentID}");
+            Options options = new Options();
+            if (!CommandLine.Parser.Default.ParseArgumentsStrict(args, options))
+                Console.WriteLine("*** ParseArgumentsStrict returned false");
+
+            var streamWriter = new StreamWriter(options.LogFileName, true);
+            var stpE = new StatisticPod("illuminance");
+            var stpCct = new StatisticPod("CCT");
+            var stpT = new StatisticPod("internal temperature");
+            var stpPeak = new StatisticPod("peak WL");
+            var stpCen = new StatisticPod("centre WL");
+            var stpCog = new StatisticPod("centroid WL");
+            var stpFwhm = new StatisticPod("FWHM");
+            var stpIntTime = new StatisticPod("integration time");
+            if (options.MaximumSamples < 2) options.MaximumSamples = 2;
+            var device = new Msc15("MSC15_0");
+            NativeSpectrum spectrum = new NativeSpectrum();
+
+            DisplayOnly("");
+            LogOnly(fatSeparator);
+            DisplayOnly($"Application:  {appName} {appVersionString}");
+            LogOnly($"Application:  {appName} {appVersion}");
+            LogAndDisplay($"StartTimeUTC: {timeStamp:dd-MM-yyyy HH:mm}");
+            LogAndDisplay($"InstrumentID: {device.InstrumentManufacturer} {device.InstrumentID}");
+            LogAndDisplay($"Samples (n):  {options.MaximumSamples}");
+            LogAndDisplay($"Comment:      {options.UserComment}");
+            LogOnly(fatSeparator);
+            DisplayOnly("");
+
             MeasureDarkOffset();
             SetDynamicDarkMode();
 
+            DisplayOnly("");
 
-            NativeSpectrum spectrum = new NativeSpectrum();
+            int measurementIndex = 0;
 
-            for (int i = 0; i < 30; i++)
+            while (true)
             {
-                device.Measure();
-                Console.WriteLine($"{i+1,4}:   {device.CctValue:F0} K    {device.PhotopicValue:F2} lx  {device.GetLastIntegrationTime():F4} s");
-                var singleSpec = device.GetNativeSpectrum();
-                spectrum.Update(singleSpec);
+                bool shallQuit = false;
+                DisplayOnly("press any key to start a measurement - 'd' to get dark offset, 'q' to quit");
+                ConsoleKeyInfo cki = Console.ReadKey(true);
+                switch (cki.Key)
+                {
+                    case ConsoleKey.Q:
+                        shallQuit = true;
+                        break;
+                    case ConsoleKey.D:
+                        MeasureDarkOffset();
+                        DisplayOnly("");
+                        break;
+                    default:
+                        int iterationIndex = 0;
+                        measurementIndex++;
+                        DisplayOnly("");
+                        DisplayOnly($"Measurement #{measurementIndex}");
+                        RestartValues();
+                        timeStamp = DateTime.UtcNow;
+
+                        while (iterationIndex < options.MaximumSamples)
+                        {
+                            iterationIndex++;
+                            device.Measure();
+                            UpdateValues();
+                            DisplayOnly($"{iterationIndex,4}:  {device.CctValue:F0} K  {device.PhotopicValue:F2} lx  " +
+                                $"{device.PeakWL:F1} nm  {device.CentreWL:F1} nm  {device.Fwhm:F1} nm");
+                        }
+
+                        string specFilename = $"MSC15test_{timeStamp:yyyy-MM-dd-HHmmss}.csv";
+                        SaveSpectrum(specFilename); // TODO
+
+                        DisplayOnly("");
+                        LogOnly($"Measurement number:            {measurementIndex}");
+                        LogOnly($"Triggered at:                  {timeStamp:dd-MM-yyyy HH:mm:ss}");
+                        LogOnly($"Spectrum:                      {specFilename}");
+                        LogAndDisplay($"CCT value:                     {stpCct.AverageValue:F1} ± {stpCct.StandardDeviation:F1} K");
+                        LogAndDisplay($"Illuminance:                   {stpE.AverageValue:F2} ± {stpE.StandardDeviation:F2} lx");
+                        LogAndDisplay($"Peak:                          {stpPeak.AverageValue:F2} ± {stpPeak.StandardDeviation:F2} nm");
+                        LogAndDisplay($"Centre:                        {stpCen.AverageValue:F2} ± {stpCen.StandardDeviation:F2} nm");
+                        LogAndDisplay($"Centroid:                      {stpCog.AverageValue:F2} ± {stpCog.StandardDeviation:F2} nm");
+                        LogAndDisplay($"FWHM:                          {stpFwhm.AverageValue:F2} ± {stpFwhm.StandardDeviation:F2} nm");
+                        LogAndDisplay($"integration time:              {stpIntTime.AverageValue:F4} s");
+                        LogAndDisplay($"Internal temperature:          {stpT.AverageValue:F1} °C");
+                        LogOnly(thinSeparator);
+                        DisplayOnly("");
+                        break;
+                }
+                if (shallQuit) break;
             }
 
-            Console.WriteLine();
+            DisplayOnly("bye.");
+            LogOnly("");
+            LogOnly(fatSeparator);
+            if (measurementIndex == 1)
+                LogOnly($"{measurementIndex} measurement logged - StopTimeUTC: {timeStamp:dd-MM-yyyy HH:mm}");
+            else
+                LogOnly($"{measurementIndex} measurements logged - StopTimeUTC: {timeStamp:dd-MM-yyyy HH:mm}");
+            LogOnly(fatSeparator);
+            LogOnly("");
 
-            StreamWriter streamWriter = new StreamWriter("CSS45nativeAverage.csv", false);
-            string csvHeader = $"index , wavelength , average irradiance , minimum , maximum, standard deviation";
-            streamWriter.WriteLine(csvHeader);
-            Console.WriteLine(csvHeader);
-
-            for (int i = 0; i < spectrum.Spectrum.Length; i++)
-            {
-                var point = spectrum.Spectrum[i];
-                string csvLine = $"{i,3} , {point.Wavelength:F5} , {point.AverageValue:G5} , {point.MinimumValue:G5} , {point.MaximumValue:G5} , {point.StandardDeviation:G5}";
-                streamWriter.WriteLine(csvLine);
-                Console.WriteLine(csvLine);
-            }
             streamWriter.Close();
+
 
             /***************************************************/
             void SetDynamicDarkMode()
@@ -50,12 +125,12 @@ namespace MSC15test
                 if (device.HasShutter)
                 {
                     device.ActivateDynamicDarkMode();
-                    Console.WriteLine("Dynamic dark mode activated.");
+                    DisplayOnly("Dynamic dark mode activated.");
                 }
                 else
                 {
                     device.DeactivateDynamicDarkMode();
-                    Console.WriteLine("Dynamic dark mode deactivated.");
+                    DisplayOnly("Dynamic dark mode deactivated.");
                 }
             }
             /***************************************************/
@@ -63,24 +138,82 @@ namespace MSC15test
             {
                 if (device.HasShutter)
                 {
-                    Console.WriteLine("measure dark offset ...");
+                    DisplayOnly("measure dark offset ...");
                     device.MeasureDark();
                 }
                 else
                 {
                     // manual close shutter (only for MSC15)
-                    Console.WriteLine("close shutter and press enter");
+                    DisplayOnly("close shutter and press enter");
                     Console.ReadLine();
                     device.MeasureDark();
-                    Console.WriteLine("open Shutter and press enter");
+                    DisplayOnly("open Shutter and press enter");
                     Console.ReadLine();
                 }
             }
             /***************************************************/
-
-
+            void LogAndDisplay(string line)
+            {
+                DisplayOnly(line);
+                LogOnly(line);
+            }
+            /***************************************************/
+            void LogOnly(string line)
+            {
+                streamWriter.WriteLine(line);
+                streamWriter.Flush();
+            }
+            /***************************************************/
+            void DisplayOnly(string line)
+            {
+                Console.WriteLine(line);
+            }
+            /***************************************************/
+            void UpdateValues()
+            {
+                stpE.Update(device.PhotopicValue);
+                stpCct.Update(device.CctValue);
+                stpT.Update(device.InternalTemperature);
+                stpPeak.Update(device.PeakWL);
+                stpCen.Update(device.CentreWL);
+                stpCog.Update(device.CentroidWL);
+                stpFwhm.Update(device.Fwhm);
+                spectrum.Update(device.GetNativeSpectrum());
+                stpIntTime.Update(device.GetLastIntegrationTime());
+            }
+            /***************************************************/
+            void RestartValues()
+            {
+                stpE.Restart();
+                stpCct.Restart();
+                stpT.Restart();
+                stpPeak.Restart();
+                stpCen.Restart();
+                stpCog.Restart();
+                stpFwhm.Restart();
+                spectrum.Restart();
+                stpIntTime.Restart();
+            }
+            /***************************************************/
+            void SaveSpectrum(string csvFilename)
+            {
+                using (StreamWriter sw = new StreamWriter(csvFilename, false))
+                {
+                    string csvHeader = $"index , wavelength , average irradiance , minimum , maximum, standard deviation";
+                    sw.WriteLine(csvHeader);
+                    for (int i = 0; i < spectrum.Spectrum.Length; i++)
+                    {
+                        var point = spectrum.Spectrum[i];
+                        string csvLine = $"{i,3} , {point.Wavelength} , {point.AverageValue} , {point.MinimumValue} , {point.MaximumValue} , {point.StandardDeviation}";
+                        sw.WriteLine(csvLine);
+                    }
+                }
+            }
+            /***************************************************/
         }
 
+        readonly static string fatSeparator = new string('=', 80);
+        readonly static string thinSeparator = new string('-', 80);
 
     }
 }

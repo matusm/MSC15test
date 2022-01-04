@@ -29,5 +29,10 @@ namespace MSC15test
         {
             valuePod.Update(value);
         }
+
+        public void Restart()
+        {
+            valuePod.Restart();
+        }
     }
 }

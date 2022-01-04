@@ -34,5 +34,13 @@ namespace MSC15test
             }
         }
 
+        public void Restart()
+        {
+            for (int i = 0; i < nativeSpectrum.Length; i++)
+            {
+                nativeSpectrum[i].Restart();
+            }
+        }
+
     }
 }
