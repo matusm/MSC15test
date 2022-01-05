@@ -53,11 +53,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="NativeSpectrum.cs" />
+    <Compile Include="BaseSpectrum.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RawSpectrum.cs" />
     <Compile Include="SpectralQuantityValue.cs" />
+    <Compile Include="VisSpectrum.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

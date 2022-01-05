@@ -33,7 +33,8 @@ namespace MSC15test
             var stpIntTime = new StatisticPod("integration time");
             if (options.MaximumSamples < 2) options.MaximumSamples = 2;
             var device = new Msc15("MSC15_0");
-            NativeSpectrum spectrum = new NativeSpectrum();
+            RawSpectrum rawSpectrum = new RawSpectrum();
+            VisSpectrum visSpectrum = new VisSpectrum();
 
             DisplayOnly("");
             LogOnly(fatSeparator);
@@ -65,7 +66,6 @@ namespace MSC15test
                         break;
                     case ConsoleKey.D:
                         MeasureDarkOffset();
-                        DisplayOnly("");
                         break;
                     default:
                         int iterationIndex = 0;
@@ -84,13 +84,16 @@ namespace MSC15test
                                 $"{device.PeakWL:F1} nm  {device.CentreWL:F1} nm  {device.Fwhm:F1} nm");
                         }
 
-                        string specFilename = $"MSC15test_{timeStamp:yyyy-MM-dd-HHmmss}.csv";
-                        SaveSpectrum(specFilename); // TODO
+                        string rawSpecFilename = $"{options.SpecFilePrefix}RAW_{timeStamp:yyyy-MM-dd-HHmmss}.csv";
+                        SaveRawSpectrum(rawSpecFilename);
+                        string visSpecFilename = $"{options.SpecFilePrefix}VIS_{timeStamp:yyyy-MM-dd-HHmmss}.csv";
+                        SaveVisSpectrum(visSpecFilename);
 
                         DisplayOnly("");
                         LogOnly($"Measurement number:            {measurementIndex}");
                         LogOnly($"Triggered at:                  {timeStamp:dd-MM-yyyy HH:mm:ss}");
-                        LogOnly($"Spectrum:                      {specFilename}");
+                        LogOnly($"Spectrum (raw):                {rawSpecFilename}");
+                        LogOnly($"Spectrum (vis):                {visSpecFilename}");
                         LogAndDisplay($"CCT value:                     {stpCct.AverageValue:F1} ± {stpCct.StandardDeviation:F1} K");
                         LogAndDisplay($"Illuminance:                   {stpE.AverageValue:F2} ± {stpE.StandardDeviation:F2} lx");
                         LogAndDisplay($"Peak:                          {stpPeak.AverageValue:F2} ± {stpPeak.StandardDeviation:F2} nm");
@@ -178,7 +181,8 @@ namespace MSC15test
                 stpCen.Update(device.CentreWL);
                 stpCog.Update(device.CentroidWL);
                 stpFwhm.Update(device.Fwhm);
-                spectrum.Update(device.GetNativeSpectrum());
+                rawSpectrum.Update(device.GetNativeSpectrum());
+                visSpectrum.Update(device.GetVisSpectrum());
                 stpIntTime.Update(device.GetLastIntegrationTime());
             }
             /***************************************************/
@@ -191,25 +195,42 @@ namespace MSC15test
                 stpCen.Restart();
                 stpCog.Restart();
                 stpFwhm.Restart();
-                spectrum.Restart();
+                rawSpectrum.Restart();
+                visSpectrum.Restart();
                 stpIntTime.Restart();
             }
             /***************************************************/
-            void SaveSpectrum(string csvFilename)
+            void SaveRawSpectrum(string csvFilename)
             {
                 using (StreamWriter sw = new StreamWriter(csvFilename, false))
                 {
-                    string csvHeader = $"index , wavelength , average irradiance , minimum , maximum, standard deviation";
+                    string csvHeader = $"pixel , wavelength , average irradiance , minimum , maximum, standard deviation";
                     sw.WriteLine(csvHeader);
-                    for (int i = 0; i < spectrum.Spectrum.Length; i++)
+                    for (int i = 0; i < rawSpectrum.Spectrum.Length; i++)
                     {
-                        var point = spectrum.Spectrum[i];
+                        var point = rawSpectrum.Spectrum[i];
                         string csvLine = $"{i,3} , {point.Wavelength} , {point.AverageValue} , {point.MinimumValue} , {point.MaximumValue} , {point.StandardDeviation}";
                         sw.WriteLine(csvLine);
                     }
                 }
             }
             /***************************************************/
+            void SaveVisSpectrum(string csvFilename)
+            {
+                using (StreamWriter sw = new StreamWriter(csvFilename, false))
+                {
+                    string csvHeader = $"wavelength , average irradiance , minimum , maximum, standard deviation";
+                    sw.WriteLine(csvHeader);
+                    for (int i = 0; i < visSpectrum.Spectrum.Length; i++)
+                    {
+                        var point = visSpectrum.Spectrum[i];
+                        string csvLine = $"{point.Wavelength} , {point.AverageValue} , {point.MinimumValue} , {point.MaximumValue} , {point.StandardDeviation}";
+                        sw.WriteLine(csvLine);
+                    }
+                }
+            }
+            /***************************************************/
+
         }
 
         readonly static string fatSeparator = new string('=', 80);

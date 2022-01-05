@@ -15,6 +15,9 @@ namespace MSC15test
         [Option("logfile", DefaultValue = "MSC15test.log", HelpText = "Log file name.")]
         public string LogFileName { get; set; }
 
+        [Option("prefix", DefaultValue = "MSC15test_", HelpText = "Prefix for spectrum files.")]
+        public string SpecFilePrefix { get; set; }
+
         [ValueList(typeof(List<string>), MaximumElements = 2)]
         public IList<string> ListOfFileNames { get; set; }
 
