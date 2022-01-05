@@ -30,7 +30,7 @@ namespace MSC15test
                 return;
             for (int i = 0; i < spectrum.Length; i++)
             {
-                nativeSpectrum[i].UpdateValue(spectrum[i]);
+                nativeSpectrum[i].Update(spectrum[i]);
             }
         }
 

@@ -19,13 +19,13 @@ namespace MSC15test
             valuePod = new StatisticPod();
         }
 
-        public void UpdateValue(SpectralValue sv)
+        public void Update(SpectralValue sv)
         {
-            UpdateValue(sv.Irradiance);
+            Update(sv.Irradiance);
             Wavelength = sv.Wavelength;
         }
 
-        public void UpdateValue(double value)
+        public void Update(double value)
         {
             valuePod.Update(value);
         }
