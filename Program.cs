@@ -85,9 +85,9 @@ namespace MSC15test
                                 $"{device.PeakWL:F1} nm  {device.CentreWL:F1} nm  {device.Fwhm:F1} nm");
                         }
 
-                        string rawSpecFilename = $"{options.SpecFilePrefix}RAW_{timeStamp:yyyy-MM-dd-HHmmss}.csv";
+                        string rawSpecFilename = $"{options.SpecFilePrefix}_RAW_{timeStamp:yyyyMMddHHmmss}.csv";
                         SaveRawSpectrum(rawSpecFilename);
-                        string visSpecFilename = $"{options.SpecFilePrefix}VIS_{timeStamp:yyyy-MM-dd-HHmmss}.csv";
+                        string visSpecFilename = $"{options.SpecFilePrefix}_VIS_{timeStamp:yyyyMMddHHmmss}.csv";
                         SaveVisSpectrum(visSpecFilename);
 
                         DisplayOnly("");
