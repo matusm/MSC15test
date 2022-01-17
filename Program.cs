@@ -55,18 +55,20 @@ namespace MSC15test
 
             int measurementIndex = 0;
 
-            while (true)
+            bool shallLoop = true;
+            while (shallLoop)
             {
-                bool shallQuit = false;
                 DisplayOnly("press any key to start a measurement - 'd' to get dark offset, 'q' to quit");
                 ConsoleKeyInfo cki = Console.ReadKey(true);
                 switch (cki.Key)
                 {
                     case ConsoleKey.Q:
-                        shallQuit = true;
+                        shallLoop = false;
                         break;
                     case ConsoleKey.D:
                         MeasureDarkOffset();
+                        LogOnly($"Dark offset measured at {DateTime.UtcNow:dd-MM-yyyy HH:mm:ss}");
+                        LogOnly(thinSeparator);
                         break;
                     default:
                         int iterationIndex = 0;
@@ -101,13 +103,12 @@ namespace MSC15test
                         LogAndDisplay($"Centre:                        {stpCen.AverageValue:F2} ± {stpCen.StandardDeviation:F2} nm");
                         LogAndDisplay($"Centroid:                      {stpCog.AverageValue:F2} ± {stpCog.StandardDeviation:F2} nm");
                         LogAndDisplay($"FWHM:                          {stpFwhm.AverageValue:F2} ± {stpFwhm.StandardDeviation:F2} nm");
-                        LogAndDisplay($"integration time:              {stpIntTime.AverageValue:F4} s");
+                        LogAndDisplay($"Integration time:              {stpIntTime.AverageValue:F4} s");
                         LogAndDisplay($"Internal temperature:          {stpT.AverageValue:F1} °C");
                         LogOnly(thinSeparator);
                         DisplayOnly("");
                         break;
                 }
-                if (shallQuit) break;
             }
 
             DisplayOnly("bye.");
