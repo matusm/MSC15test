@@ -48,7 +48,7 @@ namespace MSC15test
             LogOnly(fatSeparator);
             DisplayOnly("");
 
-            MeasureDarkOffset();
+            if (options.NoOffset == false) MeasureDarkOffset();
             SetDynamicDarkMode();
 
             DisplayOnly("");
