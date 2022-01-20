@@ -15,7 +15,7 @@ namespace MSC15test
         [Option("logfile", DefaultValue = "MSC15test.log", HelpText = "Log file name.")]
         public string LogFileName { get; set; }
 
-        [Option("prefix", DefaultValue = "MSC15test", HelpText = "Prefix for spectrum files.")]
+        [Option("prefix", DefaultValue = "", HelpText = "Prefix for spectrum files.")]
         public string SpecFilePrefix { get; set; }
 
         [Option("nooffset", DefaultValue = false, HelpText = "Avoids dark offset at startup.")]
