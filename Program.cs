@@ -103,7 +103,7 @@ namespace MSC15test
                         LogAndDisplay($"Centre:                        {stpCen.AverageValue:F2} ± {stpCen.StandardDeviation:F2} nm");
                         LogAndDisplay($"Centroid:                      {stpCog.AverageValue:F2} ± {stpCog.StandardDeviation:F2} nm");
                         LogAndDisplay($"FWHM:                          {stpFwhm.AverageValue:F2} ± {stpFwhm.StandardDeviation:F2} nm");
-                        LogAndDisplay($"Integration time:              {stpIntTime.AverageValue:F4} s");
+                        LogAndDisplay($"Integration time:              {stpIntTime.AverageValue:F6} s"); // the shortest time is 12 us
                         LogAndDisplay($"Internal temperature:          {stpT.AverageValue:F1} °C");
                         LogOnly(thinSeparator);
                         DisplayOnly("");
