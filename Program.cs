@@ -24,6 +24,9 @@ namespace MSC15test
 
             var streamWriter = new StreamWriter(options.LogFileName, true);
             var stpE = new StatisticPod("illuminance");
+            var stpS = new StatisticPod("scotopic");
+            var stpX = new StatisticPod("x1931");
+            var stpY = new StatisticPod("y1931");
             var stpCct = new StatisticPod("CCT");
             var stpT = new StatisticPod("internal temperature");
             var stpPeak = new StatisticPod("peak WL");
@@ -98,11 +101,15 @@ namespace MSC15test
                         LogOnly($"Spectrum (raw):                {rawSpecFilename}");
                         LogOnly($"Spectrum (vis):                {visSpecFilename}");
                         LogAndDisplay($"CCT value:                     {stpCct.AverageValue:F1} ± {stpCct.StandardDeviation:F1} K");
-                        LogAndDisplay($"Illuminance:                   {stpE.AverageValue:F2} ± {stpE.StandardDeviation:F2} lx");
+                        LogAndDisplay($"Photopic illuminance:          {stpE.AverageValue:F2} ± {stpE.StandardDeviation:F2} lx");
+                        LogAndDisplay($"Scotopic illuminance:          {stpS.AverageValue:F2} ± {stpS.StandardDeviation:F2} lx");
                         LogAndDisplay($"Peak:                          {stpPeak.AverageValue:F2} ± {stpPeak.StandardDeviation:F2} nm");
                         LogAndDisplay($"Centre:                        {stpCen.AverageValue:F2} ± {stpCen.StandardDeviation:F2} nm");
                         LogAndDisplay($"Centroid:                      {stpCog.AverageValue:F2} ± {stpCog.StandardDeviation:F2} nm");
                         LogAndDisplay($"FWHM:                          {stpFwhm.AverageValue:F2} ± {stpFwhm.StandardDeviation:F2} nm");
+                        LogAndDisplay($"x (CIE 1931):                  {stpX.AverageValue:F4} ± {stpX.StandardDeviation:F4}");
+                        LogAndDisplay($"y (CIE 1931):                  {stpY.AverageValue:F4} ± {stpY.StandardDeviation:F4}");
+                        LogAndDisplay($"r_xy (CIE 1931):               -0.XXXX <not yet implemented>");
                         LogAndDisplay($"Integration time:              {stpIntTime.AverageValue:F6} s"); // the shortest time is 12 us
                         LogAndDisplay($"Internal temperature:          {stpT.AverageValue:F1} °C");
                         LogOnly(thinSeparator);
@@ -177,12 +184,15 @@ namespace MSC15test
             void UpdateValues()
             {
                 stpE.Update(device.PhotopicValue);
+                stpS.Update(device.ScotopicValue);
                 stpCct.Update(device.CctValue);
                 stpT.Update(device.InternalTemperature);
                 stpPeak.Update(device.PeakWL);
                 stpCen.Update(device.CentreWL);
                 stpCog.Update(device.CentroidWL);
                 stpFwhm.Update(device.Fwhm);
+                stpX.Update(device.ColorValues.x);
+                stpY.Update(device.ColorValues.y);
                 rawSpectrum.Update(device.GetNativeSpectrum());
                 visSpectrum.Update(device.GetVisSpectrum());
                 stpIntTime.Update(device.GetLastIntegrationTime());
@@ -200,6 +210,10 @@ namespace MSC15test
                 rawSpectrum.Restart();
                 visSpectrum.Restart();
                 stpIntTime.Restart();
+                stpS.Restart();
+                stpX.Restart();
+                stpY.Restart();
+
             }
             /***************************************************/
             void SaveRawSpectrum(string csvFilename)
