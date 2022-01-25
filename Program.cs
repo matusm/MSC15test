@@ -100,16 +100,16 @@ namespace MSC15test
                         LogOnly($"Triggered at:                  {timeStamp:dd-MM-yyyy HH:mm:ss}");
                         LogOnly($"Spectrum (raw):                {rawSpecFilename}");
                         LogOnly($"Spectrum (vis):                {visSpecFilename}");
-                        LogAndDisplay($"CCT value:                     {stpCct.AverageValue:F1} ± {stpCct.StandardDeviation:F1} K");
                         LogAndDisplay($"Photopic illuminance:          {stpE.AverageValue:F2} ± {stpE.StandardDeviation:F2} lx");
                         LogAndDisplay($"Scotopic illuminance:          {stpS.AverageValue:F2} ± {stpS.StandardDeviation:F2} lx");
+                        LogAndDisplay($"CCT value:                     {stpCct.AverageValue:F1} ± {stpCct.StandardDeviation:F1} K");
+                        LogAndDisplay($"x (CIE 1931):                  {stpX.AverageValue:F4} ± {stpX.StandardDeviation:F4}");
+                        LogAndDisplay($"y (CIE 1931):                  {stpY.AverageValue:F4} ± {stpY.StandardDeviation:F4}");
+                        LogAndDisplay($"r_xy (CIE 1931):               +0.XXXX <not yet implemented>");
                         LogAndDisplay($"Peak:                          {stpPeak.AverageValue:F2} ± {stpPeak.StandardDeviation:F2} nm");
                         LogAndDisplay($"Centre:                        {stpCen.AverageValue:F2} ± {stpCen.StandardDeviation:F2} nm");
                         LogAndDisplay($"Centroid:                      {stpCog.AverageValue:F2} ± {stpCog.StandardDeviation:F2} nm");
                         LogAndDisplay($"FWHM:                          {stpFwhm.AverageValue:F2} ± {stpFwhm.StandardDeviation:F2} nm");
-                        LogAndDisplay($"x (CIE 1931):                  {stpX.AverageValue:F4} ± {stpX.StandardDeviation:F4}");
-                        LogAndDisplay($"y (CIE 1931):                  {stpY.AverageValue:F4} ± {stpY.StandardDeviation:F4}");
-                        LogAndDisplay($"r_xy (CIE 1931):               -0.XXXX <not yet implemented>");
                         LogAndDisplay($"Integration time:              {stpIntTime.AverageValue:F6} s"); // the shortest time is 12 us
                         LogAndDisplay($"Internal temperature:          {stpT.AverageValue:F1} °C");
                         LogOnly(thinSeparator);
