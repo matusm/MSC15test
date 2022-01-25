@@ -103,8 +103,8 @@ namespace MSC15test
                         LogAndDisplay($"Photopic illuminance:          {stpE.AverageValue:F2} ± {stpE.StandardDeviation:F2} lx");
                         LogAndDisplay($"Scotopic illuminance:          {stpS.AverageValue:F2} ± {stpS.StandardDeviation:F2} lx");
                         LogAndDisplay($"CCT value:                     {stpCct.AverageValue:F1} ± {stpCct.StandardDeviation:F1} K");
-                        LogAndDisplay($"x (CIE 1931):                  {stpX.AverageValue:F4} ± {stpX.StandardDeviation:F4}");
-                        LogAndDisplay($"y (CIE 1931):                  {stpY.AverageValue:F4} ± {stpY.StandardDeviation:F4}");
+                        LogAndDisplay($"x (CIE 1931):                  {stpX.AverageValue:F5} ± {stpX.StandardDeviation:F5}");
+                        LogAndDisplay($"y (CIE 1931):                  {stpY.AverageValue:F5} ± {stpY.StandardDeviation:F5}");
                         LogAndDisplay($"r_xy (CIE 1931):               +0.XXXX <not yet implemented>");
                         LogAndDisplay($"Peak:                          {stpPeak.AverageValue:F2} ± {stpPeak.StandardDeviation:F2} nm");
                         LogAndDisplay($"Centre:                        {stpCen.AverageValue:F2} ± {stpCen.StandardDeviation:F2} nm");
