@@ -18,11 +18,8 @@ namespace MSC15test
         [Option("prefix", DefaultValue = "", HelpText = "Prefix for spectrum files.")]
         public string SpecFilePrefix { get; set; }
 
-        [Option("nooffset", DefaultValue = false, HelpText = "Avoids dark offset at startup.")]
+        [Option('s', "skipdark", DefaultValue = false, HelpText = "Skip dark offset measurement at startup.")]
         public bool NoOffset { get; set; }
-
-        [ValueList(typeof(List<string>), MaximumElements = 2)]
-        public IList<string> ListOfFileNames { get; set; }
 
         [HelpOption]
         public string GetUsage()
