@@ -39,6 +39,14 @@ namespace MSC15test
             RawSpectrum rawSpectrum = new RawSpectrum();
             VisSpectrum visSpectrum = new VisSpectrum();
 
+            //  format user comment
+            string prefixForIndex = $"{options.UserComment.Trim()} - ";
+            if (string.IsNullOrWhiteSpace(options.UserComment))
+            {
+                options.UserComment = "---";
+                prefixForIndex = string.Empty;
+            }
+
             DisplayOnly("");
             LogOnly(fatSeparator);
             DisplayOnly($"Application:  {appName} {appVersionString}");
@@ -96,7 +104,7 @@ namespace MSC15test
                         SaveVisSpectrum(visSpecFilename);
 
                         DisplayOnly("");
-                        LogOnly($"Measurement number:            {measurementIndex}");
+                        LogOnly($"Measurement number:            {prefixForIndex}{measurementIndex}");
                         LogOnly($"Triggered at:                  {timeStamp:dd-MM-yyyy HH:mm:ss}");
                         LogOnly($"Spectrum (raw):                {rawSpecFilename}");
                         LogOnly($"Spectrum (vis):                {visSpecFilename}");
@@ -110,7 +118,7 @@ namespace MSC15test
                         LogAndDisplay($"Centre:                        {stpCen.AverageValue:F2} ± {stpCen.StandardDeviation:F2} nm");
                         LogAndDisplay($"Centroid:                      {stpCog.AverageValue:F2} ± {stpCog.StandardDeviation:F2} nm");
                         LogAndDisplay($"FWHM:                          {stpFwhm.AverageValue:F2} ± {stpFwhm.StandardDeviation:F2} nm");
-                        LogAndDisplay($"Integration time:              {stpIntTime.AverageValue:F6} s"); // the shortest time is 12 us
+                        LogAndDisplay($"Integration time:              {stpIntTime.AverageValue} s");
                         LogAndDisplay($"Internal temperature:          {stpT.AverageValue:F1} °C");
                         LogOnly(thinSeparator);
                         DisplayOnly("");

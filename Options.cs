@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using CommandLine;
+﻿using CommandLine;
 using CommandLine.Text;
 
 namespace MSC15test
@@ -9,7 +8,7 @@ namespace MSC15test
         [Option('n', "number", DefaultValue = 10, HelpText = "Number of samples.")]
         public int MaximumSamples { get; set; }
 
-        [Option("comment", DefaultValue = "---", HelpText = "User supplied comment string.")]
+        [Option("comment", DefaultValue = "", HelpText = "User supplied comment string.")]
         public string UserComment { get; set; }
 
         [Option("logfile", DefaultValue = "MSC15test.log", HelpText = "Log file name.")]
