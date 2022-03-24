@@ -26,6 +26,7 @@ namespace MSC15test
             var stpE = new StatisticPod("illuminance");
             var stpS = new StatisticPod("scotopic");
             var covXY = new CovariancePod("xy1932");
+            var covUV = new CovariancePod("uprime vprime");
             var stpCct = new StatisticPod("CCT");
             var stpT = new StatisticPod("internal temperature");
             var stpPeak = new StatisticPod("peak WL");
@@ -93,8 +94,7 @@ namespace MSC15test
                             iterationIndex++;
                             device.Measure();
                             UpdateValues();
-                            DisplayOnly($"{iterationIndex,4}:  {device.CctValue:F0} K  {device.PhotopicValue:F2} lx  " +
-                                $"{device.PeakWL:F1} nm  {device.CentreWL:F1} nm  {device.Fwhm:F1} nm");
+                            DisplayOnly($"{iterationIndex,4}:  {device.CctValue:F0} K  {device.PhotopicValue:F2} lx  {device.PeakWL:F1} nm  {device.Fwhm:F1} nm");
                         }
 
                         string rawSpecFilename = $"{options.SpecFilePrefix}{device.InstrumentType}_SN{device.InstrumentSerialNumber}_RAW_{timeStamp:yyyyMMddHHmmss}.csv";
@@ -113,6 +113,9 @@ namespace MSC15test
                         LogAndDisplay($"x (CIE 1931):                  {covXY.AverageValueOfX:F5} ± {covXY.StandardDeviationOfX:F5}");
                         LogAndDisplay($"y (CIE 1931):                  {covXY.AverageValueOfY:F5} ± {covXY.StandardDeviationOfY:F5}");
                         LogAndDisplay($"r_xy (CIE 1931):               {covXY.CorrelationCoefficient:F3}");
+                        LogAndDisplay($"u' (CIE 1976):                 {covUV.AverageValueOfX:F5} ± {covUV.StandardDeviationOfX:F5}");
+                        LogAndDisplay($"v' (CIE 1976):                 {covUV.AverageValueOfY:F5} ± {covUV.StandardDeviationOfY:F5}");
+                        LogAndDisplay($"r_u'v' (CIE 1976):             {covUV.CorrelationCoefficient:F3}");
                         LogAndDisplay($"Peak:                          {stpPeak.AverageValue:F2} ± {stpPeak.StandardDeviation:F2} nm");
                         LogAndDisplay($"Centre:                        {stpCen.AverageValue:F2} ± {stpCen.StandardDeviation:F2} nm");
                         LogAndDisplay($"Centroid:                      {stpCog.AverageValue:F2} ± {stpCog.StandardDeviation:F2} nm");
@@ -199,6 +202,7 @@ namespace MSC15test
                 stpCog.Update(device.CentroidWL);
                 stpFwhm.Update(device.Fwhm);
                 covXY.Update(device.ColorValues.x, device.ColorValues.y);
+                covUV.Update(device.ColorValues.uPrime, device.ColorValues.vPrime);
                 rawSpectrum.Update(device.GetNativeSpectrum());
                 visSpectrum.Update(device.GetVisSpectrum());
                 stpIntTime.Update(device.GetLastIntegrationTime());
@@ -218,6 +222,7 @@ namespace MSC15test
                 stpIntTime.Restart();
                 stpS.Restart();
                 covXY.Restart();
+                covUV.Restart();
 
             }
             /***************************************************/
