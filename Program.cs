@@ -25,8 +25,7 @@ namespace MSC15test
             var streamWriter = new StreamWriter(options.LogFileName, true);
             var stpE = new StatisticPod("illuminance");
             var stpS = new StatisticPod("scotopic");
-            var stpX = new StatisticPod("x1931");
-            var stpY = new StatisticPod("y1931");
+            var covXY = new CovariancePod("xy1932");
             var stpCct = new StatisticPod("CCT");
             var stpT = new StatisticPod("internal temperature");
             var stpPeak = new StatisticPod("peak WL");
@@ -111,9 +110,9 @@ namespace MSC15test
                         LogAndDisplay($"Photopic illuminance:          {stpE.AverageValue:F2} ± {stpE.StandardDeviation:F2} lx");
                         LogAndDisplay($"Scotopic illuminance:          {stpS.AverageValue:F2} ± {stpS.StandardDeviation:F2} lx");
                         LogAndDisplay($"CCT value:                     {stpCct.AverageValue:F1} ± {stpCct.StandardDeviation:F1} K");
-                        LogAndDisplay($"x (CIE 1931):                  {stpX.AverageValue:F5} ± {stpX.StandardDeviation:F5}");
-                        LogAndDisplay($"y (CIE 1931):                  {stpY.AverageValue:F5} ± {stpY.StandardDeviation:F5}");
-                        LogAndDisplay($"r_xy (CIE 1931):               +0.XXXX <not yet implemented>");
+                        LogAndDisplay($"x (CIE 1931):                  {covXY.AverageValueOfX:F5} ± {covXY.StandardDeviationOfX:F5}");
+                        LogAndDisplay($"y (CIE 1931):                  {covXY.AverageValueOfY:F5} ± {covXY.StandardDeviationOfY:F5}");
+                        LogAndDisplay($"r_xy (CIE 1931):               {covXY.CorrelationCoefficient:F3}");
                         LogAndDisplay($"Peak:                          {stpPeak.AverageValue:F2} ± {stpPeak.StandardDeviation:F2} nm");
                         LogAndDisplay($"Centre:                        {stpCen.AverageValue:F2} ± {stpCen.StandardDeviation:F2} nm");
                         LogAndDisplay($"Centroid:                      {stpCog.AverageValue:F2} ± {stpCog.StandardDeviation:F2} nm");
@@ -199,8 +198,7 @@ namespace MSC15test
                 stpCen.Update(device.CentreWL);
                 stpCog.Update(device.CentroidWL);
                 stpFwhm.Update(device.Fwhm);
-                stpX.Update(device.ColorValues.x);
-                stpY.Update(device.ColorValues.y);
+                covXY.Update(device.ColorValues.x, device.ColorValues.y);
                 rawSpectrum.Update(device.GetNativeSpectrum());
                 visSpectrum.Update(device.GetVisSpectrum());
                 stpIntTime.Update(device.GetLastIntegrationTime());
@@ -219,8 +217,7 @@ namespace MSC15test
                 visSpectrum.Restart();
                 stpIntTime.Restart();
                 stpS.Restart();
-                stpX.Restart();
-                stpY.Restart();
+                covXY.Restart();
 
             }
             /***************************************************/
