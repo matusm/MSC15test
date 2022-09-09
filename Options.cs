@@ -11,6 +11,9 @@ namespace MSC15test
         [Option("comment", DefaultValue = "", HelpText = "User supplied comment string.")]
         public string UserComment { get; set; }
 
+        [Option("device", DefaultValue = "MSC15_0", HelpText = "Device name.")]
+        public string DeviceName { get; set; }
+
         [Option("logfile", DefaultValue = "MSC15test.log", HelpText = "Log file name.")]
         public string LogFileName { get; set; }
 

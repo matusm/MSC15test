@@ -35,7 +35,7 @@ namespace MSC15test
             var stpFwhm = new StatisticPod("FWHM");
             var stpIntTime = new StatisticPod("integration time");
             if (options.MaximumSamples < 2) options.MaximumSamples = 2;
-            var device = new Msc15("MSC15_0");
+            var device = new Msc15(options.DeviceName);
             RawSpectrum rawSpectrum = new RawSpectrum();
             VisSpectrum visSpectrum = new VisSpectrum();
 
